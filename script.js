@@ -1,27 +1,30 @@
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwianMYwt_3V5yjE8awonLgh4z-xw0AFCYWM6w_KUDk1Pac-D0V5-fR7VKpmllJAujBVA/exec";
+/**********************************************
+ * REPOSITÓRIO DE MONOGRAFIAS – FRONTEND
+ **********************************************/
 
-const cursosDisponiveis = [
-  'Finanças e Comércio Internacional',
-  'Gestão de Recursos Humanos',
-  'Gestão de Negócios',
-  'Economia',
-  'Administração Pública'
-];
+const WEBAPP_URL =
+  "https://script.google.com/macros/s/AKfycbwianMYwt_3V5yjE8awonLgh4z-xw0AFCYWM6w_KUDk1Pac-D0V5-fR7VKpmllJAujBVA/exec";
 
-const orientadoresDisponiveis = [
-  'Prof. Dr. João Matos',
-  'Profa. Dra. Lurdes Mbanze',
-  'Prof. Dr. Luís Macamo',
-  'Profa. Dra. Marta Correia',
-  'Prof. Dr. Alberto Cossa'
-];
+/**********************************************
+ * LISTAS CARREGADAS DO BACKEND
+ **********************************************/
+let cursosDisponiveis = [];
+let orientadoresDisponiveis = [];
+let anosDisponiveis = [];
 
-const anosDisponiveis = ['2025', '2024', '2023', '2022', '2021'];
+/**********************************************
+ * VARIÁVEIS DE PAGINAÇÃO E ESTADO
+ **********************************************/
+let resultadosCompletos = [];
+let paginaAtual = 1;
+const ITENS_POR_PAGINA = 10;
 
-let ultimaPesquisaPayload = null;
 
+/**********************************************
+ * FUNÇÕES DE INTERFACE
+ **********************************************/
 function getSearchContainer() {
-  return document.getElementById('search-container');
+  return document.getElementById("search-container");
 }
 
 function prepararContainer(titulo = "Pesquise aqui") {
@@ -29,141 +32,130 @@ function prepararContainer(titulo = "Pesquise aqui") {
 
   container.innerHTML = `
     <h2>${titulo}</h2>
+
     <div id="form-area"></div>
+
     <div id="resultados" class="results-list"></div>
+
+    <div id="paginacao" class="pagination"></div>
   `;
 
   return document.getElementById("form-area");
 }
 
-function renderResultados(json) {
-  const lista = document.getElementById('resultados');
-  if (!lista) return;
 
-  lista.innerHTML = '';
+/**********************************************
+ * FUNÇÃO PARA RENDERIZAR UMA PÁGINA
+ **********************************************/
+function renderPagina(numeroPagina) {
+  paginaAtual = numeroPagina;
 
-  const dados = json?.dados || json?.resultados || [];
-  const paginaAtual = Number(json?.pagina) || 1;
-  const totalPaginas = Number(json?.totalPaginas) || Math.max(1, Math.ceil((json?.total || dados.length) / 10));
+  const lista = document.getElementById("resultados");
+  const paginacao = document.getElementById("paginacao");
 
-  if (!dados.length) {
-    lista.innerHTML = '<p class="section-subtitle">Nenhum resultado encontrado.</p>';
+  lista.innerHTML = "";
+  paginacao.innerHTML = "";
+
+  if (resultadosCompletos.length === 0) {
+    lista.innerHTML = "<p>Nenhum resultado encontrado.</p>";
     return;
   }
 
-  dados.slice(0, 10).forEach(item => {
-    const artigo = document.createElement('article');
-    artigo.className = 'result-item';
+  const total = resultadosCompletos.length;
+  const totalPaginas = Math.ceil(total / ITENS_POR_PAGINA);
 
-    const titulo = item.titulo || item.Titulo || 'Monografia sem título';
-    const autor = item.autor || item.Autor || item.nome || 'Autor desconhecido';
-    const curso = item.curso || item.Curso || '';
-    const orientador = item.orientador || item.Orientador || '';
-    const ano = item.ano || item.Ano || '';
-    const link = item.link || item.url || item.URL || item.L || '#';
+  const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+  const fim = inicio + ITENS_POR_PAGINA;
 
-    artigo.innerHTML = `
+  const paginaDados = resultadosCompletos.slice(inicio, fim);
+
+  paginaDados.forEach((item) => {
+    const div = document.createElement("article");
+    div.className = "result-item";
+    div.style.cursor = "pointer";
+
+    div.innerHTML = `
       <p class="result-main-line">
-        <span class="result-name">${autor}.</span>
-        <span class="result-title">${titulo}</span>
-        ${curso ? `<span class="result-course"> — ${curso}</span>` : ''}
+        <span class="result-name">${item.nome}.</span>
+        <span class="result-title">${item.tema}</span>
+        <span class="result-course"> — ${item.curso}</span>
       </p>
-      <p class="result-meta">${[orientador && `Orientador: ${orientador}`, ano && `Ano: ${ano}`].filter(Boolean).join(' | ')}</p>
+      <p class="result-meta">Orientador: ${item.orientador}</p>
     `;
 
-    if (link && link !== '#') {
-      artigo.addEventListener('click', () => window.open(link, '_blank'));
-      artigo.style.cursor = 'pointer';
-    }
+    div.onclick = () => {
+      if (item.link) window.open(item.link, "_blank");
+    };
 
-    lista.appendChild(artigo);
+    lista.appendChild(div);
   });
 
-  if (totalPaginas > 1) {
-    const paginacao = document.createElement('div');
-    paginacao.className = 'pagination';
+  // PAGINAÇÃO
+  let pagHTML = "";
 
-    for (let pagina = 1; pagina <= totalPaginas; pagina += 1) {
-      const botao = document.createElement('button');
-      botao.className = 'page-btn';
-      botao.textContent = pagina;
-      if (pagina === paginaAtual) {
-        botao.disabled = true;
-        botao.ariaCurrent = 'page';
-      }
-
-      botao.addEventListener('click', () => {
-        if (!ultimaPesquisaPayload) return;
-        const novoPayload = { ...ultimaPesquisaPayload, pagina };
-        realizarPesquisa(novoPayload);
-      });
-
-      paginacao.appendChild(botao);
-    }
-
-    lista.appendChild(paginacao);
+  if (paginaAtual > 1) {
+    pagHTML += `<button class="page-btn" data-page="${paginaAtual - 1}">&lt;</button>`;
   }
+
+  pagHTML += `<span class="page-info">Página ${paginaAtual} de ${totalPaginas}</span>`;
+
+  if (paginaAtual < totalPaginas) {
+    pagHTML += `<button class="page-btn" data-page="${paginaAtual + 1}">&gt;</button>`;
+  }
+
+  paginacao.innerHTML = pagHTML;
 }
 
-function mostrarUltimasPesquisas() {
-  const container = getSearchContainer();
 
-  container.innerHTML = `
-    <h2>Últimas pesquisas submetidas</h2>
-    <div id="ultimas-pesquisas" class="results-list"></div>
-  `;
+/**********************************************
+ * FUNÇÃO PARA RECEBER RESULTADOS DO BACKEND
+ **********************************************/
+function processarResultados(json) {
+  resultadosCompletos = json.dados || [];
+  renderPagina(1);
+}
 
+
+/**********************************************
+ * BUSCAR AO APPS SCRIPT
+ **********************************************/
+function fazerPesquisa(payload) {
   fetch(WEBAPP_URL, {
     method: "POST",
-    body: new URLSearchParams({ action: "repositorioUltimas" })
+    body: new URLSearchParams(payload),
   })
-    .then(r => r.json())
-    .then(json => {
-      const lista = document.getElementById('ultimas-pesquisas');
-      if (!lista) return;
-      lista.innerHTML = '';
-
-      const dados = json?.dados || json?.resultados || [];
-      dados.slice(0, 5).forEach(item => {
-        const artigo = document.createElement('article');
-        artigo.className = 'result-item';
-
-        const titulo = item.titulo || item.Titulo || 'Monografia sem título';
-        const autor = item.autor || item.Autor || item.nome || 'Autor desconhecido';
-        const curso = item.curso || item.Curso || '';
-        const orientador = item.orientador || item.Orientador || '';
-
-        artigo.innerHTML = `
-          <p class="result-main-line">
-            <span class="result-name">${autor}.</span>
-            <span class="result-title">${titulo}</span>
-            ${curso ? `<span class="result-course"> — ${curso}</span>` : ''}
-          </p>
-          <p class="result-meta">${orientador ? `Orientador: ${orientador}` : ''}</p>
-        `;
-
-        lista.appendChild(artigo);
-      });
-    })
-    .catch(() => {
-      const lista = document.getElementById('ultimas-pesquisas');
-      if (lista) {
-        lista.innerHTML = '<p class="section-subtitle">Não foi possível carregar as últimas pesquisas.</p>';
-      }
+    .then((r) => r.json())
+    .then(processarResultados)
+    .catch((err) => {
+      console.error(err);
+      alert("Erro na pesquisa.");
     });
 }
 
-function realizarPesquisa(payload) {
-  ultimaPesquisaPayload = payload;
 
+/**********************************************
+ * CARREGAR LISTAS DINÂMICAS DA PLANILHA
+ **********************************************/
+function carregarListas() {
   fetch(WEBAPP_URL, {
     method: "POST",
-    body: new URLSearchParams(payload)
+    body: new URLSearchParams({ action: "repositorioListas" }),
   })
-    .then(r => r.json())
-    .then(renderResultados);
+    .then((r) => r.json())
+    .then((json) => {
+      cursosDisponiveis = json.cursos || [];
+      orientadoresDisponiveis = json.orientadores || [];
+      anosDisponiveis = json.anos || [];
+    })
+    .catch((err) => console.error("Erro ao carregar listas:", err));
 }
 
+
+/**********************************************
+ * FORMULÁRIOS
+ **********************************************/
+
+// 🔍 Pesquisa livre
 function renderPesquisaLivre() {
   const formArea = prepararContainer("Pesquise aqui");
 
@@ -176,15 +168,18 @@ function renderPesquisaLivre() {
 
   document.getElementById("buscar-livre").onclick = () => {
     const termo = document.getElementById("livre-input").value.trim();
-    realizarPesquisa({
+    if (!termo) return;
+
+    fazerPesquisa({
       action: "repositorioPesquisar",
       tipo: "livre",
-      termo,
-      pagina: 1
+      termo: termo,
     });
   };
 }
 
+
+// 🎓 Pesquisa por curso
 function renderPesquisaPorCurso() {
   const formArea = prepararContainer("Pesquise aqui");
 
@@ -197,22 +192,24 @@ function renderPesquisaPorCurso() {
     </div>
   `;
 
-  const select = document.getElementById("curso-input");
-  cursosDisponiveis.forEach(curso => {
-    select.innerHTML += `<option value="${curso}">${curso}</option>`;
+  cursosDisponiveis.forEach((curso) => {
+    document.getElementById("curso-input").innerHTML += `<option>${curso}</option>`;
   });
 
   document.getElementById("buscar-curso").onclick = () => {
-    const curso = select.value;
-    realizarPesquisa({
+    const curso = document.getElementById("curso-input").value;
+    if (!curso) return;
+
+    fazerPesquisa({
       action: "repositorioPesquisar",
       tipo: "curso",
-      curso,
-      pagina: 1
+      curso: curso,
     });
   };
 }
 
+
+// 👨‍🏫 Pesquisa por orientador
 function renderPesquisaPorOrientador() {
   const formArea = prepararContainer("Pesquise aqui");
 
@@ -225,50 +222,54 @@ function renderPesquisaPorOrientador() {
     </div>
   `;
 
-  const select = document.getElementById("orientador-input");
-  orientadoresDisponiveis.forEach(o => {
-    select.innerHTML += `<option value="${o}">${o}</option>`;
+  orientadoresDisponiveis.forEach((o) => {
+    document.getElementById("orientador-input").innerHTML += `<option>${o}</option>`;
   });
 
   document.getElementById("buscar-orientador").onclick = () => {
-    const orientador = select.value;
-    realizarPesquisa({
+    const orientador = document.getElementById("orientador-input").value;
+    if (!orientador) return;
+
+    fazerPesquisa({
       action: "repositorioPesquisar",
       tipo: "orientador",
-      orientador,
-      pagina: 1
+      orientador: orientador,
     });
   };
 }
 
+
+// 📅 Pesquisa por ano
 function renderPesquisaPorAno() {
   const formArea = prepararContainer("Pesquise aqui");
 
   formArea.innerHTML = `
     <div class="simple-row">
       <select id="ano-input" class="simple-select">
-        <option value="">Seleccione um ano</option>
+        <option value="">Seleccione o ano</option>
       </select>
       <button class="btn-buscar" id="buscar-ano">Buscar</button>
     </div>
   `;
 
-  const select = document.getElementById("ano-input");
-  anosDisponiveis.forEach(ano => {
-    select.innerHTML += `<option value="${ano}">${ano}</option>`;
+  anosDisponiveis.forEach((ano) => {
+    document.getElementById("ano-input").innerHTML += `<option>${ano}</option>`;
   });
 
   document.getElementById("buscar-ano").onclick = () => {
-    const ano = select.value;
-    realizarPesquisa({
+    const ano = document.getElementById("ano-input").value;
+    if (!ano) return;
+
+    fazerPesquisa({
       action: "repositorioPesquisar",
       tipo: "ano",
-      ano,
-      pagina: 1
+      ano: ano,
     });
   };
 }
 
+
+// ⚙️ Filtros combinados
 function renderFiltrosCombinados() {
   const formArea = prepararContainer("Pesquise aqui");
 
@@ -290,42 +291,96 @@ function renderFiltrosCombinados() {
     </div>
   `;
 
-  const selectAno = document.getElementById("filtro-ano");
-  anosDisponiveis.forEach(a => {
-    selectAno.innerHTML += `<option>${a}</option>`;
+  anosDisponiveis.forEach((a) => {
+    filtroAno.innerHTML += `<option>${a}</option>`;
   });
 
-  const selectCurso = document.getElementById("filtro-curso");
-  cursosDisponiveis.forEach(c => {
-    selectCurso.innerHTML += `<option>${c}</option>`;
+  cursosDisponiveis.forEach((c) => {
+    filtroCurso.innerHTML += `<option>${c}</option>`;
   });
 
-  const selectOrientador = document.getElementById("filtro-orientador");
-  orientadoresDisponiveis.forEach(o => {
-    selectOrientador.innerHTML += `<option>${o}</option>`;
+  orientadoresDisponiveis.forEach((o) => {
+    filtroOrientador.innerHTML += `<option>${o}</option>`;
   });
 
   document.getElementById("buscar-filtros").onclick = () => {
-    realizarPesquisa({
+    fazerPesquisa({
       action: "repositorioPesquisar",
       tipo: "filtros",
-      ano: selectAno.value,
-      curso: selectCurso.value,
-      orientador: selectOrientador.value,
-      pagina: 1
+      ano: filtroAno.value,
+      curso: filtroCurso.value,
+      orientador: filtroOrientador.value,
     });
   };
 }
 
-function prepararEventos() {
-  document.getElementById('btn-pesquisa-livre').onclick = renderPesquisaLivre;
-  document.getElementById('btn-curso').onclick = renderPesquisaPorCurso;
-  document.getElementById('btn-orientador').onclick = renderPesquisaPorOrientador;
-  document.getElementById('btn-ano').onclick = renderPesquisaPorAno;
-  document.getElementById('btn-filtros').onclick = renderFiltrosCombinados;
+
+/**********************************************
+ * ÚLTIMAS 5 MONOGRAFIAS
+ **********************************************/
+function mostrarUltimasPesquisas() {
+  fetch(WEBAPP_URL, {
+    method: "POST",
+    body: new URLSearchParams({ action: "repositorioUltimas" }),
+  })
+    .then((r) => r.json())
+    .then((json) => {
+      const container = getSearchContainer();
+      container.innerHTML = `
+        <h2>Últimas monografias submetidas</h2>
+        <div class="results-list" id="ultimas"></div>
+      `;
+
+      const lista = document.getElementById("ultimas");
+
+      json.dados.forEach((item) => {
+        const div = document.createElement("article");
+        div.className = "result-item";
+        div.style.cursor = "pointer";
+
+        div.innerHTML = `
+          <p class="result-main-line">
+            <span class="result-name">${item.nome}.</span>
+            <span class="result-title">${item.tema}</span>
+            <span class="result-course"> — ${item.curso}</span>
+
+                        <p class="result-meta">Orientador: ${item.orientador}</p>
+          `;
+
+          div.onclick = () => window.open(item.link, "_blank");
+
+          lista.appendChild(div);
+        });
+      });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  prepararEventos();
-  mostrarUltimasPesquisas();
+
+/**********************************************
+ * EVENTOS DOS BOTÕES DO MENU
+ **********************************************/
+function prepararEventos() {
+  document.getElementById("btn-pesquisa-livre").onclick = renderPesquisaLivre;
+  document.getElementById("btn-curso").onclick = renderPesquisaPorCurso;
+  document.getElementById("btn-orientador").onclick = renderPesquisaPorOrientador;
+  document.getElementById("btn-ano").onclick = renderPesquisaPorAno;
+  document.getElementById("btn-filtros").onclick = renderFiltrosCombinados;
+
+  // PAGINAÇÃO
+  document.addEventListener("click", function (e) {
+    if (e.target.classList.contains("page-btn")) {
+      const novaPagina = Number(e.target.dataset.page);
+      renderPagina(novaPagina);
+    }
+  });
+}
+
+
+/**********************************************
+ * INICIALIZAÇÃO DA PÁGINA
+ **********************************************/
+document.addEventListener("DOMContentLoaded", () => {
+  carregarListas();           // Carregar cursos, orientadores e anos
+  prepararEventos();          // Ligar botões
+  mostrarUltimasPesquisas();  // Mostrar últimas monografias
 });
+
