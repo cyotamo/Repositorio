@@ -120,9 +120,17 @@ function processarResultados(json) {
  * BUSCAR AO APPS SCRIPT
  **********************************************/
 function fazerPesquisa(payload) {
+  const body = new URLSearchParams({
+    action: "repositorioPesquisar",
+    curso: "",
+    orientador: "",
+    ano: "",
+    ...payload,
+  });
+
   fetch(WEBAPP_URL, {
     method: "POST",
-    body: new URLSearchParams(payload),
+    body,
   })
     .then((r) => r.json())
     .then(processarResultados)
@@ -290,6 +298,10 @@ function renderFiltrosCombinados() {
       <button class="btn-buscar" id="buscar-filtros">Buscar</button>
     </div>
   `;
+
+  const filtroAno = document.getElementById("filtro-ano");
+  const filtroCurso = document.getElementById("filtro-curso");
+  const filtroOrientador = document.getElementById("filtro-orientador");
 
   anosDisponiveis.forEach((a) => {
     filtroAno.innerHTML += `<option>${a}</option>`;
