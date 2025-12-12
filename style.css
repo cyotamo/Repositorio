@@ -33,7 +33,7 @@ body {
   width: 100%;
   background: var(--gradient);
   color: #fff;
-  padding: 1.5rem 1.25rem;
+  padding: 1rem 1.25rem; /* altura reduzida */
   box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15);
 }
 
@@ -58,7 +58,7 @@ body {
 }
 
 .repository-title {
-  font-size: clamp(1.75rem, 2vw + 1rem, 2.6rem);
+  font-size: clamp(1.4rem, 1.6vw + 0.8rem, 2rem);
   font-weight: 700;
 }
 
