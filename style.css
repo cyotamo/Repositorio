@@ -237,6 +237,11 @@ main {
   outline-offset: 2px;
 }
 
+.btn-disabled {
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+}
+
 /* LISTA DE RESULTADOS */
 
 .results-list {

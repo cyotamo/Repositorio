@@ -128,7 +128,7 @@ function fazerPesquisa(payload) {
     ...payload,
   });
 
-  fetch(WEBAPP_URL, {
+  return fetch(WEBAPP_URL, {
     method: "POST",
     body,
   })
@@ -174,15 +174,23 @@ function renderPesquisaLivre() {
     </div>
   `;
 
-  document.getElementById("buscar-livre").onclick = () => {
+  const botao = document.getElementById("buscar-livre");
+
+  botao.onclick = async () => {
     const termo = document.getElementById("livre-input").value.trim();
     if (!termo) return;
 
-    fazerPesquisa({
-      action: "repositorioPesquisar",
-      tipo: "livre",
-      termo: termo,
-    });
+    bloquearBotao(botao);
+
+    try {
+      await fazerPesquisa({
+        action: "repositorioPesquisar",
+        tipo: "livre",
+        termo: termo,
+      });
+    } finally {
+      desbloquearBotao(botao);
+    }
   };
 }
 
@@ -204,15 +212,23 @@ function renderPesquisaPorCurso() {
     document.getElementById("curso-input").innerHTML += `<option>${curso}</option>`;
   });
 
-  document.getElementById("buscar-curso").onclick = () => {
+  const botao = document.getElementById("buscar-curso");
+
+  botao.onclick = async () => {
     const curso = document.getElementById("curso-input").value;
     if (!curso) return;
 
-    fazerPesquisa({
-      action: "repositorioPesquisar",
-      tipo: "curso",
-      curso: curso,
-    });
+    bloquearBotao(botao);
+
+    try {
+      await fazerPesquisa({
+        action: "repositorioPesquisar",
+        tipo: "curso",
+        curso: curso,
+      });
+    } finally {
+      desbloquearBotao(botao);
+    }
   };
 }
 
@@ -234,15 +250,23 @@ function renderPesquisaPorOrientador() {
     document.getElementById("orientador-input").innerHTML += `<option>${o}</option>`;
   });
 
-  document.getElementById("buscar-orientador").onclick = () => {
+  const botao = document.getElementById("buscar-orientador");
+
+  botao.onclick = async () => {
     const orientador = document.getElementById("orientador-input").value;
     if (!orientador) return;
 
-    fazerPesquisa({
-      action: "repositorioPesquisar",
-      tipo: "orientador",
-      orientador: orientador,
-    });
+    bloquearBotao(botao);
+
+    try {
+      await fazerPesquisa({
+        action: "repositorioPesquisar",
+        tipo: "orientador",
+        orientador: orientador,
+      });
+    } finally {
+      desbloquearBotao(botao);
+    }
   };
 }
 
@@ -264,15 +288,23 @@ function renderPesquisaPorAno() {
     document.getElementById("ano-input").innerHTML += `<option>${ano}</option>`;
   });
 
-  document.getElementById("buscar-ano").onclick = () => {
+  const botao = document.getElementById("buscar-ano");
+
+  botao.onclick = async () => {
     const ano = document.getElementById("ano-input").value;
     if (!ano) return;
 
-    fazerPesquisa({
-      action: "repositorioPesquisar",
-      tipo: "ano",
-      ano: ano,
-    });
+    bloquearBotao(botao);
+
+    try {
+      await fazerPesquisa({
+        action: "repositorioPesquisar",
+        tipo: "ano",
+        ano: ano,
+      });
+    } finally {
+      desbloquearBotao(botao);
+    }
   };
 }
 
@@ -315,14 +347,22 @@ function renderFiltrosCombinados() {
     filtroOrientador.innerHTML += `<option>${o}</option>`;
   });
 
-  document.getElementById("buscar-filtros").onclick = () => {
-    fazerPesquisa({
-      action: "repositorioPesquisar",
-      tipo: "filtros",
-      ano: filtroAno.value,
-      curso: filtroCurso.value,
-      orientador: filtroOrientador.value,
-    });
+  const botao = document.getElementById("buscar-filtros");
+
+  botao.onclick = async () => {
+    bloquearBotao(botao);
+
+    try {
+      await fazerPesquisa({
+        action: "repositorioPesquisar",
+        tipo: "filtros",
+        ano: filtroAno.value,
+        curso: filtroCurso.value,
+        orientador: filtroOrientador.value,
+      });
+    } finally {
+      desbloquearBotao(botao);
+    }
   };
 }
 
@@ -331,19 +371,22 @@ function renderFiltrosCombinados() {
  * ÚLTIMAS 5 MONOGRAFIAS
  **********************************************/
 function mostrarUltimasPesquisas() {
+  iniciarAnimacaoCarregar();
+
+  const container = getSearchContainer();
+  container.innerHTML = `
+    <h2>Últimas monografias</h2>
+    <p id="loading-text" class="section-subtitle">A carregar</p>
+    <div id="ultimas-pesquisas" class="results-list"></div>
+  `;
+
   fetch(WEBAPP_URL, {
     method: "POST",
     body: new URLSearchParams({ action: "repositorioUltimas" }),
   })
     .then((r) => r.json())
     .then((json) => {
-      const container = getSearchContainer();
-      container.innerHTML = `
-        <h2>Últimas monografias submetidas</h2>
-        <div class="results-list" id="ultimas"></div>
-      `;
-
-      const lista = document.getElementById("ultimas");
+      const lista = document.getElementById("ultimas-pesquisas");
 
       json.dados.forEach((item) => {
         const div = document.createElement("article");
@@ -355,15 +398,54 @@ function mostrarUltimasPesquisas() {
             <span class="result-name">${item.nome}.</span>
             <span class="result-title">${item.tema}</span>
             <span class="result-course"> — ${item.curso}</span>
+          </p>
+          <p class="result-meta">Orientador: ${item.orientador}</p>
+        `;
 
-                        <p class="result-meta">Orientador: ${item.orientador}</p>
-          `;
+        div.onclick = () => window.open(item.link, "_blank");
 
-          div.onclick = () => window.open(item.link, "_blank");
-
-          lista.appendChild(div);
-        });
+        lista.appendChild(div);
       });
+    })
+    .catch((err) => console.error(err))
+    .finally(() => {
+      pararAnimacaoCarregar();
+    });
+}
+
+/*************** ANIMAÇÃO "A carregar..." ******************/
+let loadingInterval = null;
+
+function iniciarAnimacaoCarregar() {
+  const el = document.getElementById("loading-text");
+  if (!el) return;
+
+  let pontos = 0;
+
+  loadingInterval = setInterval(() => {
+    pontos = (pontos + 1) % 4; // 0,1,2,3
+    el.textContent = "A carregar" + ".".repeat(pontos);
+  }, 500);
+}
+
+function pararAnimacaoCarregar() {
+  clearInterval(loadingInterval);
+
+  const el = document.getElementById("loading-text");
+  if (el) el.remove(); // remove texto assim que carregar os dados
+}
+
+function bloquearBotao(botao) {
+  botao.disabled = true;
+  botao.dataset.originalText = botao.textContent;
+  botao.textContent = "A buscar...";
+  botao.classList.add("btn-disabled");
+}
+
+function desbloquearBotao(botao) {
+  botao.disabled = false;
+  botao.textContent = botao.dataset.originalText || "Buscar";
+  botao.classList.remove("btn-disabled");
 }
 
 
