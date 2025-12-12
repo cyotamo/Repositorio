@@ -290,3 +290,35 @@ main {
     justify-content: center;
   }
 }
+/* Formulário simples - "Pesquise aqui" */
+.simple-search-label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.simple-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.simple-input,
+.simple-select {
+  padding: 0.65rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font-size: 1rem;
+  background: #fff;
+  width: 260px;
+}
+
+.simple-select {
+  width: auto;
+}
+
+.simple-row .btn-buscar {
+  margin-left: 0.5rem;
+}
+
