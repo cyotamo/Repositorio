@@ -22,64 +22,50 @@
     <section class="intro-section">
       <div class="intro-card">
         <h2>Bem-vindo ao repositório</h2>
-        <p>Explore e organize monografias defendidas, com uma interface moderna pronta para integração com Google Sheets e Google Drive.</p>
+        <p>Explore e pesquise monografias defendidas, com uma interface moderna pronta para integração com Google Sheets e Google Drive.</p>
       </div>
     </section>
 
     <section class="actions-section" aria-label="Ações principais">
       <div class="action-grid">
-        <button class="action-button" type="button">
+        <button class="action-button" type="button" id="btn-pesquisa-livre">
           <span class="action-icon">🔎</span>
-          Pesquisar Monografias
+          Pesquisa livre
         </button>
-        <button class="action-button" type="button">
-          <span class="action-icon">📂</span>
-          Listar Monografias
-        </button>
-        <button class="action-button" type="button">
-          <span class="action-icon">⬆️</span>
-          Submeter Nova Monografia
-        </button>
-        <button class="action-button" type="button">
+
+        <button class="action-button" type="button" id="btn-curso">
           <span class="action-icon">🎓</span>
-          Pesquisar por Curso
+          Pesquisa por curso
         </button>
-        <button class="action-button" type="button">
+
+        <button class="action-button" type="button" id="btn-orientador">
           <span class="action-icon">👨‍🏫</span>
-          Pesquisar por Orientador
+          Pesquisa por orientador
         </button>
-        <button class="action-button" type="button">
+
+        <button class="action-button" type="button" id="btn-ano">
           <span class="action-icon">📅</span>
-          Pesquisar por Ano
+          Pesquisa por ano
+        </button>
+
+        <button class="action-button" type="button" id="btn-filtros">
+          <span class="action-icon">⚙️</span>
+          Filtros combinados
         </button>
       </div>
     </section>
 
+    <!-- Container dinâmico de pesquisa -->
     <section class="future-section" id="pesquisa">
-      <div class="section-card">
-        <h2>Página de pesquisa</h2>
-        <p>Espaço reservado para futuras funcionalidades de pesquisa avançada.</p>
-      </div>
-    </section>
+      <div class="section-card" id="search-container">
+        <h2>Últimas pesquisas submetidas</h2>
+        <p class="section-subtitle">
+          Assim que a integração com a Google Sheet estiver activa, esta área mostrará as pesquisas mais recentes.
+        </p>
 
-    <section class="future-section" id="listagem">
-      <div class="section-card">
-        <h2>Página de listagem</h2>
-        <p>Espaço reservado para listagem dinâmica de monografias carregadas da Google Sheet.</p>
-      </div>
-    </section>
-
-    <section class="future-section" id="submissao">
-      <div class="section-card">
-        <h2>Página de submissão</h2>
-        <p>Espaço reservado para o formulário de submissão de novas monografias.</p>
-      </div>
-    </section>
-
-    <section class="future-section" id="detalhes">
-      <div class="section-card">
-        <h2>Página de detalhes da monografia</h2>
-        <p>Espaço reservado para visualizar informações detalhadas e PDFs armazenados na Google Drive.</p>
+        <div id="ultimas-pesquisas" class="results-list">
+          <!-- Placeholder: será alimentado via JavaScript e, no futuro, pela planilha -->
+        </div>
       </div>
     </section>
   </main>
