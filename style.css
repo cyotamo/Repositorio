@@ -254,6 +254,23 @@ main {
   gap: 0.15rem;
 }
 
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.page-btn {
+  background: var(--blue-500);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
 .result-main-line {
   font-size: 0.95rem;
   color: #0f172a;
