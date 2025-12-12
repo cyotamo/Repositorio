@@ -42,8 +42,9 @@ body {
   margin: 0 auto;
   display: grid;
   gap: 0.25rem;
-  text-align: center;           /* Centraliza o texto */
-  justify-items: center;        /* Centraliza em grid */
+
+  text-align: center;        /* 🔵 Centraliza o texto */
+  justify-items: center;     /* 🔵 Centraliza cada linha do grid */
 }
 
 .institution {
