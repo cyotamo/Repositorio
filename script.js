@@ -375,7 +375,7 @@ function mostrarUltimasPesquisas() {
 
   const container = getSearchContainer();
   container.innerHTML = `
-    <h2>Últimas monografias</h2>
+    <h2>Últimas monografias submetidas</h2>
     <p id="loading-text" class="section-subtitle">A carregar</p>
     <div id="ultimas-pesquisas" class="results-list"></div>
   `;
