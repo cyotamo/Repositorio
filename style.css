@@ -24,6 +24,8 @@ body {
   min-height: 100vh;
 }
 
+/* HEADER */
+
 .hero-header {
   position: sticky;
   top: 0;
@@ -40,6 +42,8 @@ body {
   margin: 0 auto;
   display: grid;
   gap: 0.25rem;
+  text-align: center;           /* Centraliza o texto */
+  justify-items: center;        /* Centraliza em grid */
 }
 
 .institution {
@@ -57,6 +61,8 @@ body {
   font-weight: 700;
 }
 
+/* LAYOUT PRINCIPAL */
+
 main {
   max-width: 1200px;
   margin: 0 auto;
@@ -64,6 +70,8 @@ main {
   display: grid;
   gap: 2rem;
 }
+
+/* INTRO */
 
 .intro-card {
   background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
@@ -77,6 +85,8 @@ main {
   font-size: 1.4rem;
   margin-bottom: 0.5rem;
 }
+
+/* BOTÕES DE AÇÃO */
 
 .actions-section {
   width: 100%;
@@ -123,6 +133,8 @@ main {
   font-size: 1.2rem;
 }
 
+/* CONTAINER DE PESQUISA */
+
 .future-section {
   width: 100%;
 }
@@ -134,7 +146,7 @@ main {
   box-shadow: var(--shadow-soft);
   border: 1px solid #e2e8f0;
   display: grid;
-  gap: 0.4rem;
+  gap: 0.75rem;
 }
 
 .section-card h2 {
@@ -142,9 +154,121 @@ main {
   color: #0f172a;
 }
 
-.section-card p {
-  color: #334155;
+.section-subtitle {
+  font-size: 0.95rem;
+  color: #64748b;
 }
+
+/* FORMULÁRIOS DE PESQUISA */
+
+.search-form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.search-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.search-field {
+  flex: 1 1 180px;
+  min-width: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+
+.search-label {
+  font-size: 0.9rem;
+  color: #475569;
+}
+
+.search-input,
+.search-select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #cbd5f5;
+  font-family: var(--font-base);
+  font-size: 0.95rem;
+  background: #f8fafc;
+  transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.search-input:focus,
+.search-select:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.2);
+  background: #ffffff;
+}
+
+/* Botão Buscar */
+
+.btn-buscar {
+  align-self: flex-end;
+  padding: 0.7rem 1.4rem;
+  border-radius: 999px;
+  border: none;
+  background: var(--blue-500);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25);
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.btn-buscar:hover,
+.btn-buscar:focus-visible {
+  background: var(--blue-700);
+  transform: translateY(-1px);
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.3);
+}
+
+.btn-buscar:focus-visible {
+  outline: 2px solid rgba(59, 130, 246, 0.5);
+  outline-offset: 2px;
+}
+
+/* LISTA DE RESULTADOS */
+
+.results-list {
+  margin-top: 0.75rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.result-item {
+  padding: 0.75rem 0.9rem;
+  border-radius: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  display: grid;
+  gap: 0.15rem;
+}
+
+.result-main-line {
+  font-size: 0.95rem;
+  color: #0f172a;
+}
+
+.result-main-line .result-title {
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.result-meta {
+  font-size: 0.85rem;
+  color: #475569;
+}
+
+/* RESPONSIVO */
 
 @media (max-width: 640px) {
   .hero-header {
@@ -158,5 +282,10 @@ main {
 
   .action-button {
     padding: 1rem;
+  }
+
+  .btn-buscar {
+    width: 100%;
+    justify-content: center;
   }
 }
