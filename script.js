@@ -3,7 +3,7 @@
  **********************************************/
 
 const WEBAPP_URL =
-  "https://script.google.com/macros/s/AKfycbwianMYwt_3V5yjE8awonLgh4z-xw0AFCYWM6w_KUDk1Pac-D0V5-fR7VKpmllJAujBVA/exec";
+  "https://script.google.com/macros/s/AKfycbylE3js2BLKlqIbTQE_VekBfZhAedYRiJcIdHv2uZQ5g_k6X4vw9A0O18GD85nosccg/exec";
 
 /**********************************************
  * LISTAS CARREGADAS DO BACKEND
